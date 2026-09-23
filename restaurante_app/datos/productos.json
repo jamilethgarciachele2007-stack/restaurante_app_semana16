@@ -1,0 +1,6 @@
+[
+  {"id_producto": "P1", "nombre": "Hamburguesa Doble", "precio": 6.50, "categoria": "Comida"},
+  {"id_producto": "P2", "nombre": "Pizza Familiar", "precio": 12.00, "categoria": "Comida"},
+  {"id_producto": "P3", "nombre": "Jugo Natural", "precio": 2.00, "categoria": "Bebida"}
+]
+   
