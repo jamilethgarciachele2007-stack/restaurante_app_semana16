@@ -1,142 +1,44 @@
 import tkinter as tk
-from pathlib import Path
-from tkinter import ttk
+from tkinter import ttk, messagebox
+from ui.main_view import MainView
 
+class LoginView(ttk.Frame):
+    def __init__(self, parent, servicio):
+        super().__init__(parent)
+        self.parent = parent
+        self.servicio = servicio
+        self.crear_componentes()
 
-class LoginView(tk.Frame):
-    def __init__(self, master, biblioteca_servicio, al_iniciar_sesion):
-        super().__init__(master, bg="#eef3f8")
-        self.biblioteca_servicio = biblioteca_servicio
-        self.al_iniciar_sesion = al_iniciar_sesion
+    def crear_componentes(self):
+        frame = ttk.LabelFrame(self, text=" Inicio de Sesión ")
+        frame.pack(padx=20, pady=20)
 
-        self.usuario_entry = None
-        self.contrasena_entry = None
-        self.mensaje_error = None
-        self.logo = None
+        ttk.Label(frame, text="Usuario:").grid(row=0, column=0, padx=5, pady=5)
+        self.txt_user = ttk.Entry(frame)
+        self.txt_user.grid(row=0, column=1, padx=5, pady=5)
 
-        self.definir_estilos()
-        self.construir_interfaz()
+        ttk.Label(frame, text="Contraseña:").grid(row=1, column=0, padx=5, pady=5)
+        self.txt_pwd = ttk.Entry(frame, show="*")
+        self.txt_pwd.grid(row=1, column=1, padx=5, pady=5)
 
-    def definir_estilos(self):
-        # Define estilos reutilizables para esta vista.
-        estilo = ttk.Style()
-        estilo.theme_use("clam")
-        estilo.configure(
-            "Login.TButton",
-            background="#2563eb",
-            foreground="#ffffff",
-            font=("Arial", 11, "bold"),
-            padding=(14, 8),
-            borderwidth=0,
-        )
-        estilo.map("Login.TButton", background=[("active", "#1d4ed8")])
+        ttk.Button(frame, text="Ingresar", command=self.login).grid(row=2, column=0, columnspan=2, pady=10)
 
-    def cargar_logo(self):
-        # Carga el logo desde assets/logo usando una ruta relativa al proyecto.
-        ruta_base = Path(__file__).resolve().parent.parent
-        ruta_logo = ruta_base / "assets" / "logo" / "logo.png"
+    def login(self):
+        usr = self.txt_user.get().strip()
+        pwd = self.txt_pwd.get().strip()
 
-        if not ruta_logo.exists():
-            return None
+        # Buscar el usuario en el servicio
+        usuarios = self.servicio.obtener_usuarios()
+        usuario_encontrado = None
+        for u in usuarios:
+            if u.usuario == usr and u.contrasena == pwd:
+                usuario_encontrado = u
+                break
 
-        logo_original = tk.PhotoImage(file=str(ruta_logo))
-        self.logo = logo_original.subsample(1, 1)
-        return self.logo
-
-    def construir_interfaz(self):
-        # Construye los componentes visuales del login.
-        contenedor = tk.Frame(self, bg="#ffffff", padx=32, pady=28)
-        contenedor.place(relx=0.5, rely=0.5, anchor="center")
-
-        logo = self.cargar_logo()
-        if logo is not None:
-            tk.Label(
-                contenedor,
-                image=logo,
-                bg="#ffffff",
-            ).pack(pady=(0, 12))
-
-        titulo = tk.Label(
-            contenedor,
-            text="Biblioteca",
-            bg="#ffffff",
-            fg="#1f2a44",
-            font=("Arial", 22, "bold"),
-        )
-        titulo.pack(pady=(0, 6))
-
-        subtitulo = tk.Label(
-            contenedor,
-            text="Inicio de sesion",
-            bg="#ffffff",
-            fg="#516173",
-            font=("Arial", 11),
-        )
-        subtitulo.pack(pady=(0, 22))
-
-        tk.Label(
-            contenedor,
-            text="Usuario",
-            bg="#ffffff",
-            fg="#243447",
-            font=("Arial", 10, "bold"),
-        ).pack(anchor="w")
-
-        self.usuario_entry = tk.Entry(contenedor, width=30, font=("Arial", 11))
-        self.usuario_entry.pack(pady=(4, 14), ipady=4)
-        self.usuario_entry.focus()
-
-        tk.Label(
-            contenedor,
-            text="Contrasena",
-            bg="#ffffff",
-            fg="#243447",
-            font=("Arial", 10, "bold"),
-        ).pack(anchor="w")
-
-        self.contrasena_entry = tk.Entry(
-            contenedor,
-            width=30,
-            font=("Arial", 11),
-            show="*",
-        )
-        self.contrasena_entry.pack(pady=(4, 14), ipady=4)
-
-        self.mensaje_error = tk.Label(
-            contenedor,
-            text="",
-            bg="#ffffff",
-            fg="#b42318",
-            font=("Arial", 10),
-        )
-        self.mensaje_error.pack(pady=(0, 14))
-
-        boton = ttk.Button(
-            contenedor,
-            text="Iniciar sesion",
-            command=self.iniciar_sesion,
-            style="Login.TButton",
-        )
-        boton.pack(fill="x")
-
-    def iniciar_sesion(self):
-        # Obtiene los valores escritos y solicita la validacion al servicio.
-        assert self.usuario_entry is not None
-        assert self.contrasena_entry is not None
-        assert self.mensaje_error is not None
-
-        usuario = self.usuario_entry.get().strip()
-        contrasena = self.contrasena_entry.get().strip()
-
-        if not usuario or not contrasena:
-            self.mensaje_error.config(text="Ingrese usuario y contrasena.")
-            return
-
-        usuario_validado = self.biblioteca_servicio.validar_acceso(usuario, contrasena)
-
-        if usuario_validado is None:
-            self.mensaje_error.config(text="Credenciales incorrectas.")
-            return
-
-        self.mensaje_error.config(text="")
-        self.al_iniciar_sesion(usuario_validado)
+        if usuario_encontrado:
+            # Destruir vista de login y cargar MainView enviando el usuario autenticado
+            self.destroy()
+            main_view = MainView(self.parent, self.servicio, usuario_encontrado)
+            main_view.pack(fill="both", expand=True)
+        else:
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos")

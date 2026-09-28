@@ -1,4 +1,16 @@
 [
-  {"usuario": "admin", "contrasena": "1234", "nombre": "Administrador"},
-  {"usuario": "yamileth", "contrasena": "1234", "nombre": "Yamileth"}
+    {
+        "id_usuario": "U1",
+        "usuario": "admin",
+        "contrasena": "1234",
+        "nombre": "Administrador",
+        "rol": "Empleado"
+    },
+    {
+        "id_usuario": "U2",
+        "usuario": "yamileth",
+        "contrasena": "1234",
+        "nombre": "Yamileth",
+        "rol": "Empleado"
+    }
 ]

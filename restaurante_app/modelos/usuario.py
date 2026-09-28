@@ -1,46 +1,26 @@
 class Usuario:
-    def __init__(self, identificador, nombre, usuario, contrasena):
-        self.identificador = identificador
-        self.nombre = nombre
+    def __init__(self, id_usuario, usuario, contrasena, nombre, rol="Cliente"):
+        self.id_usuario = id_usuario
         self.usuario = usuario
         self.contrasena = contrasena
+        self.nombre = nombre
+        self.rol = rol  # 'Administrador', 'Empleado' o 'Cliente'
+
+    def to_dict(self):
+        return {
+            "id_usuario": self.id_usuario,
+            "usuario": self.usuario,
+            "contrasena": self.contrasena,
+            "nombre": self.nombre,
+            "rol": self.rol
+        }
 
     @staticmethod
-    def validar_texto(valor, campo):
-        # Reutiliza una validacion basica para datos obligatorios.
-        if not valor or not valor.strip():
-            raise ValueError(f"El campo {campo} no puede estar vacio.")
-
-        return valor.strip()
-
-    @property
-    def identificador(self):
-        return self._identificador
-
-    @identificador.setter
-    def identificador(self, valor):
-        self._identificador = self.validar_texto(valor, "identificador")
-
-    @property
-    def nombre(self):
-        return self._nombre
-
-    @nombre.setter
-    def nombre(self, valor):
-        self._nombre = self.validar_texto(valor, "nombre")
-
-    @property
-    def usuario(self):
-        return self._usuario
-
-    @usuario.setter
-    def usuario(self, valor):
-        self._usuario = self.validar_texto(valor, "usuario")
-
-    @property
-    def contrasena(self):
-        return self._contrasena
-
-    @contrasena.setter
-    def contrasena(self, valor):
-        self._contrasena = self.validar_texto(valor, "contrasena")
+    def from_dict(data):
+        return Usuario(
+            id_usuario=data.get("id_usuario", ""),
+            usuario=data.get("usuario", ""),
+            contrasena=data.get("contrasena", ""),
+            nombre=data.get("nombre", ""),
+            rol=data.get("rol", "Cliente")
+        )
